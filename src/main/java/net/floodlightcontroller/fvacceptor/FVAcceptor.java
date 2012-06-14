@@ -2,6 +2,7 @@ package net.floodlightcontroller.fvacceptor;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.openflow.protocol.OFMessage;
@@ -9,9 +10,11 @@ import org.openflow.protocol.OFType;
 
 import net.floodlightcontroller.core.FloodlightContext;
 import net.floodlightcontroller.core.IFloodlightProviderService;
+import net.floodlightcontroller.core.IFloodlightProxy;
 import net.floodlightcontroller.core.IOFMessageListener;
 import net.floodlightcontroller.core.IOFSwitch;
 import net.floodlightcontroller.core.IOFSwitchListener;
+import net.floodlightcontroller.core.internal.FVController;
 import net.floodlightcontroller.core.module.FloodlightModuleContext;
 import net.floodlightcontroller.core.module.FloodlightModuleException;
 import net.floodlightcontroller.core.module.IFloodlightModule;
@@ -26,6 +29,8 @@ import org.slf4j.LoggerFactory;
  */
 public class FVAcceptor implements IFloodlightModule, IOFMessageListener,
 		IOFSwitchListener {
+	
+	FVController fvcontroller; 
 	
 	protected static Logger log = LoggerFactory.getLogger(FVAcceptor.class);
 	protected IFloodlightProviderService floodlightProvider;
@@ -42,13 +47,23 @@ public class FVAcceptor implements IFloodlightModule, IOFMessageListener,
 	@Override
 	public Collection<Class<? extends IFloodlightService>> getModuleServices() {
 		// TODO Auto-generated method stub
-		return null;
+		Collection<Class<? extends IFloodlightService>> services =
+              new ArrayList<Class<? extends IFloodlightService>>(1);
+		services.add(IFloodlightProxy.class);
+		return services;
 	}
 
 	@Override
 	public Map<Class<? extends IFloodlightService>, IFloodlightService> getServiceImpls() {
 		// TODO Auto-generated method stub
-		return null;
+		fvcontroller = new FVController();
+        
+        Map<Class<? extends IFloodlightService>,
+            IFloodlightService> m = 
+                new HashMap<Class<? extends IFloodlightService>,
+                            IFloodlightService>();
+        m.put(IFloodlightProxy.class, fvcontroller);
+        return m;
 	}
 
 	@Override
@@ -56,6 +71,7 @@ public class FVAcceptor implements IFloodlightModule, IOFMessageListener,
 			throws FloodlightModuleException {
 		// TODO Auto-generated method stub
 		floodlightProvider = context.getServiceImpl(IFloodlightProviderService.class);
+		fvcontroller.init();
 	}
 
 	@Override

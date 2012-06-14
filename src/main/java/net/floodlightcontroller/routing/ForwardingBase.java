@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 import net.floodlightcontroller.core.FloodlightContext;
-import net.floodlightcontroller.core.IFloodlightProviderService;
+import net.floodlightcontroller.core.IFloodlightProxy;
 import net.floodlightcontroller.core.IOFMessageListener;
 import net.floodlightcontroller.core.IOFSwitch;
 import net.floodlightcontroller.core.util.AppCookie;
@@ -57,6 +57,10 @@ import org.openflow.util.U16;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**temporarily mangled for testing proxy - change IFloodlightProxy to 
+ * IFloodlightProviderService here and in every other module that uses 
+ * to revert to working state... 
+*/
 public abstract class ForwardingBase implements
     IOFMessageListener,
     IDeviceListener {
@@ -65,7 +69,7 @@ public abstract class ForwardingBase implements
 
     public static final short FLOWMOD_DEFAULT_HARD_TIMEOUT = 5; // in seconds
 
-    protected IFloodlightProviderService floodlightProvider;
+    protected IFloodlightProxy floodlightProvider;
     protected IDeviceService deviceManager;
     protected IRoutingService routingEngine;
     protected ITopologyService topology;
@@ -453,8 +457,8 @@ public abstract class ForwardingBase implements
         if (!broadcastCacheFeature) return false;
 
         Ethernet eth = 
-            IFloodlightProviderService.bcStore.get(cntx,
-            		IFloodlightProviderService.CONTEXT_PI_PAYLOAD);
+            IFloodlightProxy.bcStore.get(cntx,
+            		IFloodlightProxy.CONTEXT_PI_PAYLOAD);
         
         Long broadcastHash;
         broadcastHash = topology.getL2DomainId(sw.getId())
@@ -475,7 +479,7 @@ public abstract class ForwardingBase implements
         
         // Get the hash of the Ethernet packet.
         Ethernet eth =
-                IFloodlightProviderService.bcStore.get(cntx, IFloodlightProviderService.CONTEXT_PI_PAYLOAD);
+                IFloodlightProxy.bcStore.get(cntx, IFloodlightProxy.CONTEXT_PI_PAYLOAD);
 
         // some FORWARD_OR_FLOOD packets are unicast with unknown destination mac
         // if (eth.isBroadcast() || eth.isMulticast())
@@ -485,7 +489,7 @@ public abstract class ForwardingBase implements
     }
 
     public static boolean
-            blockHost(IFloodlightProviderService floodlightProvider,
+            blockHost(IFloodlightProxy floodlightProvider,
                       SwitchPort sw_tup, long host_mac,
                       short hardTimeout, long cookie) {
 
@@ -534,7 +538,7 @@ public abstract class ForwardingBase implements
     /**
      * @param floodlightProvider the floodlightProvider to set
      */
-    public void setFloodlightProvider(IFloodlightProviderService floodlightProvider) {
+    public void setFloodlightProvider(IFloodlightProxy floodlightProvider) {
         this.floodlightProvider = floodlightProvider;
     }
 

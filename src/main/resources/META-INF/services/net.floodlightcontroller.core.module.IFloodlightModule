@@ -1,4 +1,5 @@
 net.floodlightcontroller.core.FloodlightProvider
+net.floodlightcontroller.fvacceptor.FVAcceptor
 net.floodlightcontroller.storage.memory.MemoryStorageSource
 net.floodlightcontroller.devicemanager.internal.DeviceManagerImpl
 net.floodlightcontroller.linkdiscovery.internal.LinkDiscoveryManager
