@@ -29,6 +29,10 @@ import net.floodlightcontroller.core.util.ListenerDispatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * A base for a proxy layer between core controller and modules. 
+ * @author 
+ */
 public class FVController implements IFloodlightProxy {
 
 	protected BasicFactory factory;
@@ -82,14 +86,13 @@ public class FVController implements IFloodlightProxy {
             messageListeners.put(type, ldd);
         }
         ldd.addListener(type, listener);
-        log.info("ldd = {}", ldd);
-        log.info("added message listener {}", listener);		
+        log.debug("added message listener {}", listener);		
 	}
 
 	@Override
 	public synchronized void addOFSwitchListener(IOFSwitchListener listener) {
 		// TODO Auto-generated method stub
-		log.info("added switch listener {}", listener);
+		log.debug("added switch listener {}", listener);
 		this.switchListeners.add(listener);
 	}
 
@@ -213,13 +216,13 @@ public class FVController implements IFloodlightProxy {
 	@Override
 	public void removeHAListener(IHAListener listener) {
 		// TODO Auto-generated method stub
-
+		controller.removeHAListener(listener);
 	}
 
 	@Override
 	public void removeInfoProvider(String type, IInfoProvider provider) {
 		// TODO Auto-generated method stub
-
+		controller.removeInfoProvider(type, provider);
 	}
 
 	@Override
@@ -256,13 +259,13 @@ public class FVController implements IFloodlightProxy {
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
-
+		
 	}
 
 	@Override
 	public void terminate() {
 		// TODO Auto-generated method stub
-
+		System.exit(1);
 	}
 
 }
