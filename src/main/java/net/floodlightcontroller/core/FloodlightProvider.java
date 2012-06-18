@@ -64,6 +64,8 @@ public class FloodlightProvider implements IFloodlightModule {
            context.getServiceImpl(IRestApiService.class));
        controller.setThreadPoolService(
            context.getServiceImpl(IThreadPoolService.class));
+       controller.setFVProxy(
+    		   context.getServiceImpl(IFloodlightProxy.class));
        controller.init(context.getConfigParams(this));
     }
 

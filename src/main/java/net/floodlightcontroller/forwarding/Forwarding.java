@@ -27,6 +27,7 @@ import java.util.Map;
 
 import net.floodlightcontroller.core.FloodlightContext;
 import net.floodlightcontroller.core.IFloodlightProxy;
+import net.floodlightcontroller.core.IFloodlightProxy;
 import net.floodlightcontroller.core.IOFSwitch;
 import net.floodlightcontroller.devicemanager.IDevice;
 import net.floodlightcontroller.devicemanager.IDeviceService;
@@ -215,6 +216,7 @@ public class Forwarding extends ForwardingBase implements IFloodlightModule {
         // Set Action to flood
         OFPacketOut po = 
             (OFPacketOut) floodlightProvider.getOFMessageFactory().getMessage(OFType.PACKET_OUT);
+        log.debug("packet out: {}", po);
         List<OFAction> actions = new ArrayList<OFAction>();
         if (sw.hasAttribute(IOFSwitch.PROP_SUPPORTS_OFPP_FLOOD)) {
             actions.add(new OFActionOutput(OFPort.OFPP_FLOOD.getValue(), (short)0));

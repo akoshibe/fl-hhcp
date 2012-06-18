@@ -1,5 +1,7 @@
 package net.floodlightcontroller.core.internal;
 
+import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -10,14 +12,18 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import org.openflow.protocol.OFMessage;
 import org.openflow.protocol.OFType;
 import org.openflow.protocol.factory.BasicFactory;
+import org.openflow.util.HexString;
 
 import net.floodlightcontroller.core.FloodlightContext;
+import net.floodlightcontroller.core.IFloodlightProviderService;
 import net.floodlightcontroller.core.IFloodlightProxy;
 import net.floodlightcontroller.core.IHAListener;
 import net.floodlightcontroller.core.IInfoProvider;
 import net.floodlightcontroller.core.IOFMessageListener;
 import net.floodlightcontroller.core.IOFSwitch;
+import net.floodlightcontroller.core.IOFSwitchFilter;
 import net.floodlightcontroller.core.IOFSwitchListener;
+import net.floodlightcontroller.core.IListener.Command;
 import net.floodlightcontroller.core.util.ListenerDispatcher;
 
 import org.slf4j.Logger;
@@ -26,30 +32,51 @@ import org.slf4j.LoggerFactory;
 public class FVController implements IFloodlightProxy {
 
 	protected BasicFactory factory;
+	protected IFloodlightProviderService controller;
+	
 	protected static Logger log = LoggerFactory.getLogger(FVController.class);
 	
 	protected ConcurrentMap<OFType, 
 		ListenerDispatcher<OFType,IOFMessageListener>> 
         	messageListeners;
 	protected Set<IOFSwitchListener> switchListeners;
+	protected ConcurrentHashMap <Long, IOFSwitch> switches;
 	
 	@Override
 	public void addHAListener(IHAListener listener) {
 		// TODO Auto-generated method stub
-
+		controller.addHAListener(listener);
 	}
+	
+	/**
+	 * propagates switch join/leave to modules 
+	*/
+	public void updateSwitch(IOFSwitch sw, boolean add) {
+		if (add)
+			this.switches.put(sw.getId(), sw);
+		else
+			this.switches.remove(sw.getId(), sw);
 
+		if (switchListeners != null) {
+			for (IOFSwitchListener listener : switchListeners) {
+				if (add)
+					listener.addedSwitch(sw);
+				else
+					listener.removedSwitch(sw);
+			}
+		}
+	}
+	
 	@Override
 	public void addInfoProvider(String type, IInfoProvider provider) {
 		// TODO Auto-generated method stub
-
+		controller.addInfoProvider(type, provider);
 	}
 
 	@Override
 	public synchronized void addOFMessageListener(OFType type, IOFMessageListener listener) {
         ListenerDispatcher<OFType, IOFMessageListener> ldd = 
             messageListeners.get(type);
-        log.info("ldd = {}", ldd);
         if (ldd == null) {
             ldd = new ListenerDispatcher<OFType, IOFMessageListener>();
             messageListeners.put(type, ldd);
@@ -69,19 +96,19 @@ public class FVController implements IFloodlightProxy {
 	@Override
 	public String getControllerId() {
 		// TODO Auto-generated method stub
-		return null;
+		return controller.getControllerId();
 	}
 
 	@Override
 	public Map<String, Object> getControllerInfo(String type) {
 		// TODO Auto-generated method stub
-		return null;
+		return controller.getControllerInfo(type);
 	}
 
 	@Override
 	public Map<String, String> getControllerNodeIPs() {
 		// TODO Auto-generated method stub
-		return null;
+		return controller.getControllerNodeIPs();
 	}
 
 	@Override
@@ -93,41 +120,96 @@ public class FVController implements IFloodlightProxy {
 	@Override
 	public BasicFactory getOFMessageFactory() {
 		// TODO Auto-generated method stub
-		return factory;
-	}
-
-	@Override
-	public Role getRole() {
-		// TODO Auto-generated method stub
-		return null;
+		return controller.getOFMessageFactory();
 	}
 
 	@Override
 	public Map<Long, IOFSwitch> getSwitches() {
 		// TODO Auto-generated method stub
-		return null;
+		
+		return Collections.unmodifiableMap(this.switches);
 	}
 
 	@Override
 	public void handleOutgoingMessage(IOFSwitch sw, OFMessage m,
 			FloodlightContext bc) {
 		// TODO Auto-generated method stub
-
+		log.debug("handleOutgoing");
+		
+		List<IOFMessageListener> listeners = null;
+        if (messageListeners.containsKey(m.getType())) {
+            listeners = 
+                    messageListeners.get(m.getType()).getOrderedListeners();
+        }
+            
+        if (listeners != null) {                
+            for (IOFMessageListener listener : listeners) {
+                if (listener instanceof IOFSwitchFilter) {
+                    if (!((IOFSwitchFilter)listener).isInterested(sw)) {
+                        continue;
+                    }
+                }
+                if (Command.STOP.equals(listener.receive(sw, m, bc))) {
+                    break;
+                }
+            }
+        }
 	}
 
 	@Override
 	public boolean injectOfMessage(IOFSwitch sw, OFMessage msg) {
 		// TODO Auto-generated method stub
-		return false;
+		return injectOfMessage(sw, msg, null);
 	}
 
 	@Override
 	public boolean injectOfMessage(IOFSwitch sw, OFMessage msg,
 			FloodlightContext bContext) {
-		// TODO Auto-generated method stub
-		return false;
+		log.debug("in injectOFMessage");
+        
+        if (controller.getSwitches().containsKey(sw.getId())) return false;
+        
+        try {
+            // Pass Floodlight context to the handleMessages()
+            handleMessage(sw, msg, bContext);
+        } catch (IOException e) {
+            log.error("Error reinjecting OFMessage on switch {}", 
+                      HexString.toHexString(sw.getId()));
+            return false;
+        }
+        return true;
 	}
 
+	public void handleMessage(IOFSwitch sw, OFMessage msg, 
+			FloodlightContext ctxt) throws IOException {
+		log.debug("in handleMessage");
+		Command cmd = null;
+		List<IOFMessageListener> listeners = null;
+		
+        if (messageListeners.containsKey(msg.getType())) {
+            listeners = messageListeners.get(msg.getType()).
+                    getOrderedListeners();
+        }
+        log.debug("handleMsg: listeners for {}: {}",msg, listeners);
+        
+        if (listeners != null) {
+        	for (IOFMessageListener listener : listeners) {
+        		if (listener instanceof IOFSwitchFilter) {
+        			if (!((IOFSwitchFilter)listener).isInterested(sw)) {
+        				continue;
+        			}
+        		}
+        		log.debug("handleMsg recv on listener {}", listener);
+        		cmd = listener.receive(sw, msg, ctxt);
+        		if (Command.STOP.equals(cmd)) {
+                    break;
+                }
+        	}
+        } else {
+        	log.error("Unhandled OF Message: {} from {}", msg, sw);
+        }      
+	}
+	
 	@Override
 	public void removeHAListener(IHAListener listener) {
 		// TODO Auto-generated method stub
@@ -162,21 +244,17 @@ public class FVController implements IFloodlightProxy {
 	}
 	
 	//based ion what's in Controller.java
-	public void init() {
+	public void init(IFloodlightProviderService controller) {
+		this.controller = controller;
 		this.messageListeners =
             new ConcurrentHashMap<OFType, 
             	ListenerDispatcher<OFType, IOFMessageListener>>();
 		this.switchListeners = new CopyOnWriteArraySet<IOFSwitchListener>();
+		this.switches = new ConcurrentHashMap<Long, IOFSwitch>();
 	}
 
 	@Override
 	public void run() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void setRole(Role role) {
 		// TODO Auto-generated method stub
 
 	}

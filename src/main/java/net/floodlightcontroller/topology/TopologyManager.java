@@ -15,8 +15,9 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import net.floodlightcontroller.core.FloodlightContext;
-import net.floodlightcontroller.core.IFloodlightProviderService;
+import net.floodlightcontroller.core.IFloodlightProxy;
 import net.floodlightcontroller.core.IFloodlightProviderService.Role;
+import net.floodlightcontroller.core.IFloodlightProviderService;
 import net.floodlightcontroller.core.IOFMessageListener;
 import net.floodlightcontroller.core.IOFSwitch;
 import net.floodlightcontroller.core.IHAListener;
@@ -83,7 +84,7 @@ public class TopologyManager implements
     protected Map<NodePortTuple, Set<Link>> tunnelLinks; 
     protected ILinkDiscoveryService linkDiscovery;
     protected IThreadPoolService threadPool;
-    protected IFloodlightProviderService floodlightProvider;
+    protected IFloodlightProxy floodlightProvider;
     protected IRestApiService restApi;
 
     // Modules that listen to our updates
@@ -579,7 +580,7 @@ public class TopologyManager implements
                 new ArrayList<Class<? extends IFloodlightService>>();
         l.add(ILinkDiscoveryService.class);
         l.add(IThreadPoolService.class);
-        l.add(IFloodlightProviderService.class);
+        l.add(IFloodlightProxy.class);
         l.add(ICounterStoreService.class);
         l.add(IRestApiService.class);
         return l;
@@ -591,7 +592,7 @@ public class TopologyManager implements
         linkDiscovery = context.getServiceImpl(ILinkDiscoveryService.class);
         threadPool = context.getServiceImpl(IThreadPoolService.class);
         floodlightProvider = 
-                context.getServiceImpl(IFloodlightProviderService.class);
+                context.getServiceImpl(IFloodlightProxy.class);
         restApi = context.getServiceImpl(IRestApiService.class);
 
         switchPorts = new HashMap<Long,Set<Short>>();
@@ -776,8 +777,8 @@ public class TopologyManager implements
 
         // get the packet-in switch.
         Ethernet eth = 
-                IFloodlightProviderService.bcStore.
-                get(cntx,IFloodlightProviderService.CONTEXT_PI_PAYLOAD);
+                IFloodlightProxy.bcStore.
+                get(cntx,IFloodlightProxy.CONTEXT_PI_PAYLOAD);
 
         if (eth.getEtherType() == Ethernet.TYPE_BDDP) {
             doFloodBDDP(sw.getId(), pi, cntx);

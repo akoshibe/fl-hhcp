@@ -1,9 +1,11 @@
 package net.floodlightcontroller.fvacceptor;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.openflow.protocol.OFMessage;
 import org.openflow.protocol.OFType;
@@ -34,6 +36,7 @@ public class FVAcceptor implements IFloodlightModule, IOFMessageListener,
 	
 	protected static Logger log = LoggerFactory.getLogger(FVAcceptor.class);
 	protected IFloodlightProviderService floodlightProvider;
+	
 
 	@Override
 	public Collection<Class<? extends IFloodlightService>> getModuleDependencies() {
@@ -70,8 +73,9 @@ public class FVAcceptor implements IFloodlightModule, IOFMessageListener,
 	public void init(FloodlightModuleContext context)
 			throws FloodlightModuleException {
 		// TODO Auto-generated method stub
+		
 		floodlightProvider = context.getServiceImpl(IFloodlightProviderService.class);
-		fvcontroller.init();
+		fvcontroller.init(floodlightProvider);
 	}
 
 	@Override
@@ -84,14 +88,21 @@ public class FVAcceptor implements IFloodlightModule, IOFMessageListener,
 		floodlightProvider.addOFSwitchListener(this);
 	}
 
+	@SuppressWarnings("finally")
 	@Override
 	public net.floodlightcontroller.core.IListener.Command receive(
 			IOFSwitch sw, OFMessage msg, FloodlightContext cntx) {
 		// TODO Auto-generated method stub
-		log.info("got message OFType {}", msg.getType());
-		return Command.CONTINUE;
+		log.debug("got message {}, sw={}", msg, sw);
+		log.debug("cntx={}", cntx);
+		try {
+			fvcontroller.handleMessage(sw, msg, cntx);
+		} 
+		finally {
+			return Command.CONTINUE;
+		}
 	}
-
+	
 	@Override
 	public String getName() {
 		// TODO Auto-generated method stub
@@ -113,12 +124,14 @@ public class FVAcceptor implements IFloodlightModule, IOFMessageListener,
 	@Override
 	public void addedSwitch(IOFSwitch sw) {
 		// TODO Auto-generated method stub
+		fvcontroller.updateSwitch(sw, true);
 		log.info("switch {} joined", sw.getId());	
 	}
 
 	@Override
 	public void removedSwitch(IOFSwitch sw) {
 		// TODO Auto-generated method stub
+		fvcontroller.updateSwitch(sw, false);
 		log.info("switch {} left", sw.getId());	
 	}
 

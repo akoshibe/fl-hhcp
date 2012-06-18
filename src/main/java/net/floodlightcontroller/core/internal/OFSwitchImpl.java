@@ -32,6 +32,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import net.floodlightcontroller.core.FloodlightContext;
 import net.floodlightcontroller.core.IFloodlightProviderService;
+import net.floodlightcontroller.core.IFloodlightProxy;
 import net.floodlightcontroller.core.IOFMessageListener;
 import net.floodlightcontroller.core.IFloodlightProviderService.Role;
 import net.floodlightcontroller.core.IOFSwitch;
@@ -67,6 +68,7 @@ public class OFSwitchImpl implements IOFSwitch {
 
     protected ConcurrentMap<Object, Object> attributes;
     protected IFloodlightProviderService floodlightProvider;
+    protected IFloodlightProxy floodlightProxy;
     protected IThreadPoolService threadPool;
     protected Date connectedSince;
     protected OFFeaturesReply featuresReply;
@@ -150,14 +152,23 @@ public class OFSwitchImpl implements IOFSwitch {
     }
     
     public void write(OFMessage m, FloodlightContext bc) throws IOException {
+    	log.debug("in write for {},{}", bc, m);
         Map<OFSwitchImpl,List<OFMessage>> msg_buffer_map = local_msg_buffer.get();
         List<OFMessage> msg_buffer = msg_buffer_map.get(this);
         if (msg_buffer == null) {
             msg_buffer = new ArrayList<OFMessage>();
             msg_buffer_map.put(this, msg_buffer);
         }
-
-        this.floodlightProvider.handleOutgoingMessage(this, m, bc);
+    	log.debug("write: msg type {}", m.getType());
+        switch (m.getType()) {
+    		case PACKET_OUT:
+    		case FLOW_MOD:
+    		case PORT_MOD:	
+               	this.floodlightProxy.handleOutgoingMessage(this, m, bc);
+               	break;
+            default: 	
+            	this.floodlightProvider.handleOutgoingMessage(this, m, bc);
+        }
         msg_buffer.add(m);
 
         if ((msg_buffer.size() >= Controller.BATCH_MAX_SIZE) ||
@@ -168,6 +179,7 @@ public class OFSwitchImpl implements IOFSwitch {
     }
 
     public void write(List<OFMessage> msglist, FloodlightContext bc) throws IOException {
+    	log.debug("in write for {},{}", bc, msglist);
         for (OFMessage m : msglist) {
             if (role == Role.SLAVE) {
                 switch (m.getType()) {
@@ -180,9 +192,19 @@ public class OFSwitchImpl implements IOFSwitch {
                         break;
                 }
             }
+
+        	log.debug("write: msg type {}", m.getType());
             // FIXME: Debugging code should be disabled!!!
             // log.debug("Sending message type {} with xid {}", new Object[] {m.getType(), m.getXid()});
-            this.floodlightProvider.handleOutgoingMessage(this, m, bc);
+            switch (m.getType()) {
+            	case PACKET_OUT:
+            	case FLOW_MOD:
+            	case PORT_MOD:	
+        			this.floodlightProxy.handleOutgoingMessage(this, m, bc);
+        			break;
+            	default: 
+        			this.floodlightProvider.handleOutgoingMessage(this, m, bc);
+            }     
         }
         this.write(msglist);
     }
@@ -350,6 +372,10 @@ public class OFSwitchImpl implements IOFSwitch {
      */
     public void setFloodlightProvider(IFloodlightProviderService floodlightProvider) {
         this.floodlightProvider = floodlightProvider;
+    }
+    
+    public void setFloodlightProxy(IFloodlightProxy floodlightProxy) {
+        this.floodlightProxy = floodlightProxy;
     }
     
     public void setThreadPoolService(IThreadPoolService tp) {

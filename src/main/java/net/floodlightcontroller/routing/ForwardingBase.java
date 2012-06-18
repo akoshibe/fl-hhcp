@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 import net.floodlightcontroller.core.FloodlightContext;
+import net.floodlightcontroller.core.IFloodlightProviderService;
 import net.floodlightcontroller.core.IFloodlightProxy;
 import net.floodlightcontroller.core.IOFMessageListener;
 import net.floodlightcontroller.core.IOFSwitch;
@@ -134,6 +135,7 @@ public abstract class ForwardingBase implements
     @Override
     public Command receive(IOFSwitch sw, OFMessage msg,
                            FloodlightContext cntx) {
+    	log.debug("in receive, msg type {}", msg.getType());
         switch (msg.getType()) {
             case PACKET_IN:
                 IRoutingDecision decision = null;
@@ -479,7 +481,7 @@ public abstract class ForwardingBase implements
         
         // Get the hash of the Ethernet packet.
         Ethernet eth =
-                IFloodlightProxy.bcStore.get(cntx, IFloodlightProxy.CONTEXT_PI_PAYLOAD);
+                IFloodlightProviderService.bcStore.get(cntx, IFloodlightProviderService.CONTEXT_PI_PAYLOAD);
 
         // some FORWARD_OR_FLOOD packets are unicast with unknown destination mac
         // if (eth.isBroadcast() || eth.isMulticast())
@@ -536,7 +538,7 @@ public abstract class ForwardingBase implements
     }
 
     /**
-     * @param floodlightProvider the floodlightProvider to set
+     * @param iFloodlightProviderService the floodlightProvider to set
      */
     public void setFloodlightProvider(IFloodlightProxy floodlightProvider) {
         this.floodlightProvider = floodlightProvider;

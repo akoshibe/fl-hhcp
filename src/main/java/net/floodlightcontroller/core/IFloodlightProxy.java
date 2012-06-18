@@ -28,7 +28,7 @@ import org.openflow.protocol.OFType;
 import org.openflow.protocol.factory.BasicFactory;
 
 /**
- * This is just IFPS renamed for testing out a proxy method that /should/ work
+ * A stripped-down IFPS for testing out a proxy method that /should/ work
  * 
  * @author 
  */
@@ -40,12 +40,6 @@ public interface IFloodlightProxy extends IFloodlightService {
      */
     public static final String CONTEXT_PI_PAYLOAD = 
             "net.floodlightcontroller.core.IFloodlightProvider.piPayload";
-
-    /**
-     * The role of the controller as used by the OF 1.2 and OVS failover and
-     * load-balancing mechanism.
-     */
-    public static enum Role { EQUAL, MASTER, SLAVE };
     
     /**
      * A FloodlightContextStore object that can be used to retrieve the 
@@ -82,11 +76,6 @@ public interface IFloodlightProxy extends IFloodlightService {
     public Map<Long, IOFSwitch> getSwitches();
     
     /**
-     * Get the current role of the controller
-     */
-    public Role getRole();
-    
-    /**
      * Get the current mapping of controller IDs to their IP addresses
      * Returns a copy of the current mapping. 
      * @see IHAListener
@@ -97,11 +86,6 @@ public interface IFloodlightProxy extends IFloodlightService {
      * Gets the ID of the controller
      */
     public String getControllerId();
-    
-    /**
-     * Set the role of the controller
-     */
-    public void setRole(Role role);
     
     /**
      * Add a switch listener

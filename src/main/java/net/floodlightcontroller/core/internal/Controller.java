@@ -48,6 +48,7 @@ import java.util.concurrent.TimeoutException;
 
 import net.floodlightcontroller.core.FloodlightContext;
 import net.floodlightcontroller.core.IFloodlightProviderService;
+import net.floodlightcontroller.core.IFloodlightProxy;
 import net.floodlightcontroller.core.IHAListener;
 import net.floodlightcontroller.core.IInfoProvider;
 import net.floodlightcontroller.core.IOFMessageListener;
@@ -134,6 +135,7 @@ public class Controller implements IFloodlightProviderService,
     
     protected static Logger log = LoggerFactory.getLogger(Controller.class);
     
+    protected IFloodlightProxy floodlightProxy;
     protected BasicFactory factory;
     protected ConcurrentMap<OFType,
                             ListenerDispatcher<OFType,IOFMessageListener>> 
@@ -334,6 +336,10 @@ public class Controller implements IFloodlightProviderService,
         this.threadPool = tp;
     }
 
+    public void setFVProxy(IFloodlightProxy fp) {
+    	this.floodlightProxy = fp;
+    }
+    
     @Override
     public synchronized Role getRole() {
         return role;
@@ -502,6 +508,7 @@ public class Controller implements IFloodlightProviderService,
             sw.setChannel(e.getChannel());
             sw.setFloodlightProvider(Controller.this);
             sw.setThreadPoolService(threadPool);
+            sw.setFloodlightProxy(floodlightProxy);
             
             List<OFMessage> msglist = new ArrayList<OFMessage>(1);
             msglist.add(factory.getMessage(OFType.HELLO));
@@ -577,6 +584,7 @@ public class Controller implements IFloodlightProviderService,
 
                 for (OFMessage ofm : msglist) {
                     try {
+                    	log.debug("messageReceived(): calling processOFMessage");
                         processOFMessage(ofm);
                     }
                     catch (Exception ex) {
@@ -876,7 +884,7 @@ public class Controller implements IFloodlightProviderService,
         protected void processOFMessage(OFMessage m)
                 throws IOException, SwitchStateException {
             boolean shouldHandleMessage = false;
-            
+            log.debug("in processOFmessage for {}", sw);
             switch (m.getType()) {
                 case HELLO:
                     log.debug("HELLO from {}", sw);
@@ -1114,8 +1122,10 @@ public class Controller implements IFloodlightProviderService,
     protected void handleMessage(IOFSwitch sw, OFMessage m,
                                  FloodlightContext bContext)
             throws IOException {
+    	log.debug("in handleMessage for msg {}, {}", m.getType(), bContext);
+    	
         Ethernet eth = null;
-
+        
         switch (m.getType()) {
             case PACKET_IN:
                 OFPacketIn pi = (OFPacketIn)m;
@@ -1485,6 +1495,7 @@ public class Controller implements IFloodlightProviderService,
     @Override
     public boolean injectOfMessage(IOFSwitch sw, OFMessage msg,
                                    FloodlightContext bc) {
+    	log.debug("in injectOFMessage");
         // FIXME: Do we need to be able to inject messages to switches
         // where we're the slave controller (i.e. they're connected but
         // not active)?
@@ -1522,6 +1533,7 @@ public class Controller implements IFloodlightProviderService,
     @Override
     public void handleOutgoingMessage(IOFSwitch sw, OFMessage m,
                                       FloodlightContext bc) {
+    	log.debug("handleOutgoing");
         if (log.isTraceEnabled()) {
             String str = OFMessage.getDataAsString(sw, m, bc);
             log.trace("{}", str);
@@ -1532,14 +1544,15 @@ public class Controller implements IFloodlightProviderService,
             listeners = 
                     messageListeners.get(m.getType()).getOrderedListeners();
         }
-            
-        if (listeners != null) {                
+        log.debug("handling outgoing with {}",listeners);
+        if (listeners != null) {            
             for (IOFMessageListener listener : listeners) {
                 if (listener instanceof IOFSwitchFilter) {
                     if (!((IOFSwitchFilter)listener).isInterested(sw)) {
                         continue;
                     }
                 }
+                
                 if (Command.STOP.equals(listener.receive(sw, m, bc))) {
                     break;
                 }

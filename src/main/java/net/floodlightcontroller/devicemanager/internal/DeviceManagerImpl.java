@@ -38,6 +38,7 @@ import java.util.concurrent.TimeUnit;
 
 import net.floodlightcontroller.core.FloodlightContext;
 import net.floodlightcontroller.core.IFloodlightProviderService;
+import net.floodlightcontroller.core.IFloodlightProxy;
 import net.floodlightcontroller.core.IHAListener;
 import net.floodlightcontroller.core.IInfoProvider;
 import net.floodlightcontroller.core.IOFMessageListener;
@@ -92,7 +93,7 @@ public class DeviceManagerImpl implements
     protected static Logger logger = 
         LoggerFactory.getLogger(DeviceManagerImpl.class);
 
-    protected IFloodlightProviderService floodlightProvider;
+    protected IFloodlightProxy floodlightProvider;
     protected ITopologyService topology;
     protected IStorageSourceService storageSource;
     protected IRestApiService restApi;
@@ -594,7 +595,7 @@ public class DeviceManagerImpl implements
     public Collection<Class<? extends IFloodlightService>> getModuleDependencies() {
         Collection<Class<? extends IFloodlightService>> l =
                 new ArrayList<Class<? extends IFloodlightService>>();
-        l.add(IFloodlightProviderService.class);
+        l.add(IFloodlightProxy.class);
         l.add(IStorageSourceService.class);
         l.add(ITopologyService.class);
         l.add(IRestApiService.class);
@@ -614,7 +615,7 @@ public class DeviceManagerImpl implements
         		Collections.synchronizedSet(new HashSet<SwitchPort>());
         
         this.floodlightProvider = 
-                fmc.getServiceImpl(IFloodlightProviderService.class);
+                fmc.getServiceImpl(IFloodlightProxy.class);
         this.storageSource =
                 fmc.getServiceImpl(IStorageSourceService.class);
         this.topology =

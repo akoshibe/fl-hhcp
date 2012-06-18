@@ -41,8 +41,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import net.floodlightcontroller.core.FloodlightContext;
-import net.floodlightcontroller.core.IFloodlightProviderService;
+import net.floodlightcontroller.core.IFloodlightProxy;
 import net.floodlightcontroller.core.IFloodlightProviderService.Role;
+import net.floodlightcontroller.core.IFloodlightProviderService;
 import net.floodlightcontroller.core.IHAListener;
 import net.floodlightcontroller.core.IInfoProvider;
 import net.floodlightcontroller.core.IOFMessageListener;
@@ -138,7 +139,7 @@ public class LinkDiscoveryManager
     private static final String SWITCH_CONFIG_TABLE_NAME = "controller_switchconfig";
     private static final String SWITCH_CONFIG_CORE_SWITCH = "core_switch";
 
-    protected IFloodlightProviderService floodlightProvider;
+    protected IFloodlightProxy floodlightProvider;
     protected IStorageSourceService storageSource;
     protected IRoutingService routingEngine;
     protected IThreadPoolService threadPool;
@@ -1336,7 +1337,7 @@ public class LinkDiscoveryManager
     public Collection<Class<? extends IFloodlightService>> getModuleDependencies() {
         Collection<Class<? extends IFloodlightService>> l = 
                 new ArrayList<Class<? extends IFloodlightService>>();
-        l.add(IFloodlightProviderService.class);
+        l.add(IFloodlightProxy.class);
         l.add(IStorageSourceService.class);
         l.add(IRoutingService.class);
         l.add(IThreadPoolService.class);
@@ -1346,7 +1347,7 @@ public class LinkDiscoveryManager
     @Override
     public void init(FloodlightModuleContext context)
                       throws FloodlightModuleException {
-        floodlightProvider = context.getServiceImpl(IFloodlightProviderService.class);
+        floodlightProvider = context.getServiceImpl(IFloodlightProxy.class);
         storageSource = context.getServiceImpl(IStorageSourceService.class);
         routingEngine = context.getServiceImpl(IRoutingService.class);
         threadPool = context.getServiceImpl(IThreadPoolService.class);

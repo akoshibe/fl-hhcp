@@ -68,6 +68,7 @@ public class Hub implements IFloodlightModule, IOFMessageListener {
         OFPacketIn pi = (OFPacketIn) msg;
         OFPacketOut po = (OFPacketOut) floodlightProvider.getOFMessageFactory()
                 .getMessage(OFType.PACKET_OUT);
+        log.debug("packet out: {}", po);
         po.setBufferId(pi.getBufferId())
             .setInPort(pi.getInPort());
 
