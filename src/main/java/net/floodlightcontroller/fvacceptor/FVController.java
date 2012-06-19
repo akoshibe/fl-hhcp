@@ -1,10 +1,12 @@
-package net.floodlightcontroller.core.internal;
+package net.floodlightcontroller.fvacceptor;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -16,7 +18,6 @@ import org.openflow.util.HexString;
 
 import net.floodlightcontroller.core.FloodlightContext;
 import net.floodlightcontroller.core.IFloodlightProviderService;
-import net.floodlightcontroller.core.IFloodlightProxy;
 import net.floodlightcontroller.core.IHAListener;
 import net.floodlightcontroller.core.IInfoProvider;
 import net.floodlightcontroller.core.IOFMessageListener;
@@ -114,10 +115,19 @@ public class FVController implements IFloodlightProxy {
 		return controller.getControllerNodeIPs();
 	}
 
+	/**
+	 * return just the listeners that this proxy knows about 
+	 */
 	@Override
 	public Map<OFType, List<IOFMessageListener>> getListeners() {
 		// TODO Auto-generated method stub
-		return null;
+		Map<OFType, List<IOFMessageListener>> lers = 
+            new HashMap<OFType, List<IOFMessageListener>>();
+        for(Entry<OFType, ListenerDispatcher<OFType, IOFMessageListener>> e : 
+            messageListeners.entrySet()) {
+            lers.put(e.getKey(), e.getValue().getOrderedListeners());
+        }
+        return Collections.unmodifiableMap(lers);
 	}
 
 	@Override
@@ -246,7 +256,7 @@ public class FVController implements IFloodlightProxy {
 		this.switchListeners.remove(listener);
 	}
 	
-	//based ion what's in Controller.java
+	//based on what's in Controller.java
 	public void init(IFloodlightProviderService controller) {
 		this.controller = controller;
 		this.messageListeners =
@@ -266,6 +276,18 @@ public class FVController implements IFloodlightProxy {
 	public void terminate() {
 		// TODO Auto-generated method stub
 		System.exit(1);
+	}
+
+	@Override
+	public Role getRole() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setRole(Role role) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }
