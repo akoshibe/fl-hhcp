@@ -43,7 +43,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import net.floodlightcontroller.core.FloodlightContext;
 import net.floodlightcontroller.fvacceptor.IFloodlightProxy;
 import net.floodlightcontroller.core.IFloodlightProviderService.Role;
-import net.floodlightcontroller.core.IFloodlightProviderService;
 import net.floodlightcontroller.core.IHAListener;
 import net.floodlightcontroller.core.IInfoProvider;
 import net.floodlightcontroller.core.IOFMessageListener;
@@ -544,8 +543,8 @@ public class LinkDiscoveryManager
     protected Command handlePacketIn(IOFSwitch sw, OFPacketIn pi,
                                      FloodlightContext cntx) {
         Ethernet eth = 
-            IFloodlightProviderService.bcStore.get(cntx, 
-                                        IFloodlightProviderService.CONTEXT_PI_PAYLOAD);
+            IFloodlightProxy.bcStore.get(cntx, 
+                                        IFloodlightProxy.CONTEXT_PI_PAYLOAD);
 
         if(eth.getEtherType() == Ethernet.TYPE_BDDP) {
             return handleLldp((LLDP) eth.getPayload(), sw, pi, false, cntx);

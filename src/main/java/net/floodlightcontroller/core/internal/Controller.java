@@ -503,7 +503,7 @@ public class Controller implements IFloodlightProviderService,
                                      ChannelStateEvent e) throws Exception {
             log.info("New switch connection from {}",
                      e.getChannel().getRemoteAddress());
-            
+            //change depending on 
             sw = new OFSwitchImpl();
             sw.setChannel(e.getChannel());
             sw.setFloodlightProvider(Controller.this);

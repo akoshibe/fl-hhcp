@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 
 import net.floodlightcontroller.core.FloodlightContext;
-import net.floodlightcontroller.core.IFloodlightProviderService;
 import net.floodlightcontroller.fvacceptor.IFloodlightProxy;
 import net.floodlightcontroller.core.IOFMessageListener;
 import net.floodlightcontroller.core.IOFSwitch;
@@ -481,7 +480,7 @@ public abstract class ForwardingBase implements
         
         // Get the hash of the Ethernet packet.
         Ethernet eth =
-                IFloodlightProviderService.bcStore.get(cntx, IFloodlightProviderService.CONTEXT_PI_PAYLOAD);
+                IFloodlightProxy.bcStore.get(cntx, IFloodlightProxy.CONTEXT_PI_PAYLOAD);
 
         // some FORWARD_OR_FLOOD packets are unicast with unknown destination mac
         // if (eth.isBroadcast() || eth.isMulticast())

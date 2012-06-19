@@ -15,9 +15,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import net.floodlightcontroller.core.FloodlightContext;
-import net.floodlightcontroller.fvacceptor.IFloodlightProxy;
 import net.floodlightcontroller.core.IFloodlightProviderService.Role;
-import net.floodlightcontroller.core.IFloodlightProviderService;
 import net.floodlightcontroller.core.IOFMessageListener;
 import net.floodlightcontroller.core.IOFSwitch;
 import net.floodlightcontroller.core.IHAListener;
@@ -36,6 +34,7 @@ import net.floodlightcontroller.routing.Link;
 import net.floodlightcontroller.routing.Route;
 import net.floodlightcontroller.threadpool.IThreadPoolService;
 import net.floodlightcontroller.topology.web.TopologyWebRoutable;
+import net.floodlightcontroller.fvacceptor.IFloodlightProxy;
 
 import org.openflow.protocol.OFMessage;
 import org.openflow.protocol.OFPacketIn;
@@ -631,8 +630,8 @@ public class TopologyManager implements
                                              FloodlightContext cntx) {
         Command result = Command.CONTINUE;
         Ethernet eth = 
-                IFloodlightProviderService.bcStore.
-                get(cntx,IFloodlightProviderService.CONTEXT_PI_PAYLOAD);
+                IFloodlightProxy.bcStore.
+                get(cntx,IFloodlightProxy.CONTEXT_PI_PAYLOAD);
 
         if (isAllowed(sw.getId(), pi.getInPort()) == false) {
             if (eth.getEtherType() == Ethernet.TYPE_BDDP ||

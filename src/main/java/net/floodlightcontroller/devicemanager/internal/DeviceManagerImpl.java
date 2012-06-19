@@ -37,7 +37,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import net.floodlightcontroller.core.FloodlightContext;
-import net.floodlightcontroller.core.IFloodlightProviderService;
 import net.floodlightcontroller.fvacceptor.IFloodlightProxy;
 import net.floodlightcontroller.core.IHAListener;
 import net.floodlightcontroller.core.IInfoProvider;
@@ -691,8 +690,8 @@ public class DeviceManagerImpl implements
     protected Command processPacketInMessage(IOFSwitch sw, OFPacketIn pi, 
                                              FloodlightContext cntx) {
     	Ethernet eth = 
-            IFloodlightProviderService.bcStore.
-            get(cntx,IFloodlightProviderService.CONTEXT_PI_PAYLOAD);
+            IFloodlightProxy.bcStore.
+            get(cntx,IFloodlightProxy.CONTEXT_PI_PAYLOAD);
     
 	    // Extract source entity information
 	    Entity srcEntity = 
