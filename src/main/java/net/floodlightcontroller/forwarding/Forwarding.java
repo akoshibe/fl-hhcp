@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 
 import net.floodlightcontroller.core.FloodlightContext;
-import net.floodlightcontroller.fvacceptor.IFloodlightProxy;
 import net.floodlightcontroller.core.IOFSwitch;
 import net.floodlightcontroller.devicemanager.IDevice;
 import net.floodlightcontroller.devicemanager.IDeviceService;
@@ -43,6 +42,7 @@ import net.floodlightcontroller.routing.IRoutingDecision;
 import net.floodlightcontroller.routing.IRoutingService;
 import net.floodlightcontroller.routing.Route;
 import net.floodlightcontroller.topology.ITopologyService;
+import net.floodlightcontroller.fvacceptor.IFloodlightProxy;
 
 import org.openflow.protocol.OFFlowMod;
 import org.openflow.protocol.OFMatch;
