@@ -7,6 +7,6 @@ import net.floodlightcontroller.core.IFloodlightProviderService;
  * 
  * @author 
  */
-public interface IFloodlightProxy extends IFloodlightProviderService {
+public interface IFloodlightProxyProvider extends IFloodlightProviderService {
 
 }

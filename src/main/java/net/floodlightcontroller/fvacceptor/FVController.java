@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
  * A base for a proxy layer between core controller and modules. 
  * @author 
  */
-public class FVController implements IFloodlightProxy {
+public class FVController implements IFloodlightProviderService {
 
 	protected BasicFactory factory;
 	protected IFloodlightProviderService controller;

@@ -37,11 +37,11 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import net.floodlightcontroller.core.FloodlightContext;
-import net.floodlightcontroller.fvacceptor.IFloodlightProxy;
 import net.floodlightcontroller.core.IHAListener;
 import net.floodlightcontroller.core.IInfoProvider;
 import net.floodlightcontroller.core.IOFMessageListener;
 import net.floodlightcontroller.core.IOFSwitch;
+import net.floodlightcontroller.core.IFloodlightProviderService;
 import net.floodlightcontroller.core.IFloodlightProviderService.Role;
 import net.floodlightcontroller.core.module.FloodlightModuleContext;
 import net.floodlightcontroller.core.module.IFloodlightModule;
@@ -92,7 +92,7 @@ public class DeviceManagerImpl implements
     protected static Logger logger = 
         LoggerFactory.getLogger(DeviceManagerImpl.class);
 
-    protected IFloodlightProxy floodlightProvider;
+    protected IFloodlightProviderService floodlightProvider;
     protected ITopologyService topology;
     protected IStorageSourceService storageSource;
     protected IRestApiService restApi;
@@ -594,7 +594,7 @@ public class DeviceManagerImpl implements
     public Collection<Class<? extends IFloodlightService>> getModuleDependencies() {
         Collection<Class<? extends IFloodlightService>> l =
                 new ArrayList<Class<? extends IFloodlightService>>();
-        l.add(IFloodlightProxy.class);
+        l.add(IFloodlightProviderService.class);
         l.add(IStorageSourceService.class);
         l.add(ITopologyService.class);
         l.add(IRestApiService.class);
@@ -614,7 +614,7 @@ public class DeviceManagerImpl implements
         		Collections.synchronizedSet(new HashSet<SwitchPort>());
         
         this.floodlightProvider = 
-                fmc.getServiceImpl(IFloodlightProxy.class);
+                fmc.getServiceImpl(IFloodlightProviderService.class);
         this.storageSource =
                 fmc.getServiceImpl(IStorageSourceService.class);
         this.topology =
@@ -690,8 +690,8 @@ public class DeviceManagerImpl implements
     protected Command processPacketInMessage(IOFSwitch sw, OFPacketIn pi, 
                                              FloodlightContext cntx) {
     	Ethernet eth = 
-            IFloodlightProxy.bcStore.
-            get(cntx,IFloodlightProxy.CONTEXT_PI_PAYLOAD);
+            IFloodlightProviderService.bcStore.
+            get(cntx,IFloodlightProviderService.CONTEXT_PI_PAYLOAD);
     
 	    // Extract source entity information
 	    Entity srcEntity = 

@@ -7,6 +7,7 @@ import net.floodlightcontroller.core.internal.CmdLineSettings;
 import net.floodlightcontroller.core.module.FloodlightModuleException;
 import net.floodlightcontroller.core.module.FloodlightModuleLoader;
 import net.floodlightcontroller.core.module.IFloodlightModuleContext;
+import net.floodlightcontroller.fvacceptor.IFloodlightProxyProvider;
 import net.floodlightcontroller.restserver.IRestApiService;
 
 /**
@@ -42,7 +43,7 @@ public class Main {
         restApi.run();
         // Run the main floodlight module
         IFloodlightProviderService controller =
-                moduleContext.getServiceImpl(IFloodlightProviderService.class);
+                moduleContext.getServiceImpl(IFloodlightProxyProvider.class);
         // This call blocks, it has to be the last line in the main
         controller.run();
     }

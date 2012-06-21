@@ -11,7 +11,8 @@ import net.floodlightcontroller.core.module.FloodlightModuleException;
 import net.floodlightcontroller.core.module.IFloodlightModule;
 import net.floodlightcontroller.core.module.IFloodlightService;
 import net.floodlightcontroller.counter.ICounterStoreService;
-import net.floodlightcontroller.fvacceptor.IFloodlightProxy;
+import net.floodlightcontroller.fvacceptor.IFloodlightProxyProvider;
+import net.floodlightcontroller.core.IFloodlightProviderService;
 import net.floodlightcontroller.perfmon.IPktInProcessingTimeService;
 import net.floodlightcontroller.restserver.IRestApiService;
 import net.floodlightcontroller.storage.IStorageSourceService;
@@ -24,7 +25,7 @@ public class FloodlightProvider implements IFloodlightModule {
     public Collection<Class<? extends IFloodlightService>> getModuleServices() {
         Collection<Class<? extends IFloodlightService>> services =
                 new ArrayList<Class<? extends IFloodlightService>>(1);
-        services.add(IFloodlightProviderService.class);
+        services.add(IFloodlightProxyProvider.class);
         return services;
     }
 
@@ -37,7 +38,7 @@ public class FloodlightProvider implements IFloodlightModule {
             IFloodlightService> m = 
                 new HashMap<Class<? extends IFloodlightService>,
                             IFloodlightService>();
-        m.put(IFloodlightProviderService.class, controller);
+        m.put(IFloodlightProxyProvider.class, controller);
         return m;
     }
 
@@ -66,7 +67,7 @@ public class FloodlightProvider implements IFloodlightModule {
        controller.setThreadPoolService(
            context.getServiceImpl(IThreadPoolService.class));
        controller.setFVProxy(
-    		   context.getServiceImpl(IFloodlightProxy.class));
+    		   context.getServiceImpl(IFloodlightProviderService.class));
        controller.init(context.getConfigParams(this));
     }
 

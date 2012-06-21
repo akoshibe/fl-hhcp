@@ -42,7 +42,7 @@ import net.floodlightcontroller.routing.IRoutingDecision;
 import net.floodlightcontroller.routing.IRoutingService;
 import net.floodlightcontroller.routing.Route;
 import net.floodlightcontroller.topology.ITopologyService;
-import net.floodlightcontroller.fvacceptor.IFloodlightProxy;
+import net.floodlightcontroller.core.IFloodlightProviderService;
 
 import org.openflow.protocol.OFFlowMod;
 import org.openflow.protocol.OFMatch;
@@ -61,8 +61,8 @@ public class Forwarding extends ForwardingBase implements IFloodlightModule {
 
     @Override
     public Command processPacketInMessage(IOFSwitch sw, OFPacketIn pi, IRoutingDecision decision, FloodlightContext cntx) {
-        Ethernet eth = IFloodlightProxy.bcStore.get(cntx, 
-                                                       IFloodlightProxy.CONTEXT_PI_PAYLOAD);
+        Ethernet eth = IFloodlightProviderService.bcStore.get(cntx, 
+                                                       IFloodlightProviderService.CONTEXT_PI_PAYLOAD);
         if (eth.isBroadcast() || eth.isMulticast()) {
             // For now we treat multicast as broadcast
             doFlood(sw, pi, cntx);
@@ -284,7 +284,7 @@ public class Forwarding extends ForwardingBase implements IFloodlightModule {
     public Collection<Class<? extends IFloodlightService>> getModuleDependencies() {
         Collection<Class<? extends IFloodlightService>> l = 
                 new ArrayList<Class<? extends IFloodlightService>>();
-        l.add(IFloodlightProxy.class);
+        l.add(IFloodlightProviderService.class);
         l.add(IDeviceService.class);
         l.add(IRoutingService.class);
         l.add(ITopologyService.class);
@@ -294,7 +294,7 @@ public class Forwarding extends ForwardingBase implements IFloodlightModule {
 
     @Override
     public void init(FloodlightModuleContext context) throws FloodlightModuleException {
-        this.setFloodlightProvider(context.getServiceImpl(IFloodlightProxy.class));
+        this.setFloodlightProvider(context.getServiceImpl(IFloodlightProviderService.class));
         this.setDeviceManager(context.getServiceImpl(IDeviceService.class));
         this.setRoutingEngine(context.getServiceImpl(IRoutingService.class));
         this.setTopology(context.getServiceImpl(ITopologyService.class));

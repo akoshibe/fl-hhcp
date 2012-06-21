@@ -15,6 +15,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import net.floodlightcontroller.core.FloodlightContext;
+import net.floodlightcontroller.core.IFloodlightProviderService;
 import net.floodlightcontroller.core.IFloodlightProviderService.Role;
 import net.floodlightcontroller.core.IOFMessageListener;
 import net.floodlightcontroller.core.IOFSwitch;
@@ -34,7 +35,6 @@ import net.floodlightcontroller.routing.Link;
 import net.floodlightcontroller.routing.Route;
 import net.floodlightcontroller.threadpool.IThreadPoolService;
 import net.floodlightcontroller.topology.web.TopologyWebRoutable;
-import net.floodlightcontroller.fvacceptor.IFloodlightProxy;
 
 import org.openflow.protocol.OFMessage;
 import org.openflow.protocol.OFPacketIn;
@@ -83,7 +83,7 @@ public class TopologyManager implements
     protected Map<NodePortTuple, Set<Link>> tunnelLinks; 
     protected ILinkDiscoveryService linkDiscovery;
     protected IThreadPoolService threadPool;
-    protected IFloodlightProxy floodlightProvider;
+    protected IFloodlightProviderService floodlightProvider;
     protected IRestApiService restApi;
 
     // Modules that listen to our updates
@@ -579,7 +579,7 @@ public class TopologyManager implements
                 new ArrayList<Class<? extends IFloodlightService>>();
         l.add(ILinkDiscoveryService.class);
         l.add(IThreadPoolService.class);
-        l.add(IFloodlightProxy.class);
+        l.add(IFloodlightProviderService.class);
         l.add(ICounterStoreService.class);
         l.add(IRestApiService.class);
         return l;
@@ -591,7 +591,7 @@ public class TopologyManager implements
         linkDiscovery = context.getServiceImpl(ILinkDiscoveryService.class);
         threadPool = context.getServiceImpl(IThreadPoolService.class);
         floodlightProvider = 
-                context.getServiceImpl(IFloodlightProxy.class);
+                context.getServiceImpl(IFloodlightProviderService.class);
         restApi = context.getServiceImpl(IRestApiService.class);
 
         switchPorts = new HashMap<Long,Set<Short>>();
@@ -630,8 +630,8 @@ public class TopologyManager implements
                                              FloodlightContext cntx) {
         Command result = Command.CONTINUE;
         Ethernet eth = 
-                IFloodlightProxy.bcStore.
-                get(cntx,IFloodlightProxy.CONTEXT_PI_PAYLOAD);
+                IFloodlightProviderService.bcStore.
+                get(cntx,IFloodlightProviderService.CONTEXT_PI_PAYLOAD);
 
         if (isAllowed(sw.getId(), pi.getInPort()) == false) {
             if (eth.getEtherType() == Ethernet.TYPE_BDDP ||
@@ -776,8 +776,8 @@ public class TopologyManager implements
 
         // get the packet-in switch.
         Ethernet eth = 
-                IFloodlightProxy.bcStore.
-                get(cntx,IFloodlightProxy.CONTEXT_PI_PAYLOAD);
+                IFloodlightProviderService.bcStore.
+                get(cntx,IFloodlightProviderService.CONTEXT_PI_PAYLOAD);
 
         if (eth.getEtherType() == Ethernet.TYPE_BDDP) {
             doFloodBDDP(sw.getId(), pi, cntx);

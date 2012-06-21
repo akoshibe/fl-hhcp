@@ -68,7 +68,7 @@ import net.floodlightcontroller.storage.IStorageSourceService;
 import net.floodlightcontroller.storage.OperatorPredicate;
 import net.floodlightcontroller.storage.StorageException;
 import net.floodlightcontroller.threadpool.IThreadPoolService;
-import net.floodlightcontroller.fvacceptor.IFloodlightProxy;
+import net.floodlightcontroller.fvacceptor.IFloodlightProxyProvider;
 
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.buffer.ChannelBuffer;
@@ -131,11 +131,11 @@ import org.slf4j.LoggerFactory;
  * The main controller class.  Handles all setup and network listeners
  */
 public class Controller implements IFloodlightProviderService, 
-            IStorageSourceListener {
+            IStorageSourceListener, IFloodlightProxyProvider {
     
     protected static Logger log = LoggerFactory.getLogger(Controller.class);
     
-    protected IFloodlightProxy floodlightProxy;
+    protected IFloodlightProviderService floodlightProxy;
     protected BasicFactory factory;
     protected ConcurrentMap<OFType,
                             ListenerDispatcher<OFType,IOFMessageListener>> 
@@ -336,8 +336,8 @@ public class Controller implements IFloodlightProviderService,
         this.threadPool = tp;
     }
 
-    public void setFVProxy(IFloodlightProxy fp) {
-    	this.floodlightProxy = fp;
+    public void setFVProxy(IFloodlightProviderService floodlightProxy) {
+    	this.floodlightProxy = floodlightProxy;
     }
     
     @Override

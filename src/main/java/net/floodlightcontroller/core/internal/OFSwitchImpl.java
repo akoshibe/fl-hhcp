@@ -38,7 +38,7 @@ import net.floodlightcontroller.core.IOFSwitch;
 import net.floodlightcontroller.core.types.MacVlanPair;
 import net.floodlightcontroller.threadpool.IThreadPoolService;
 import net.floodlightcontroller.util.TimedCache;
-import net.floodlightcontroller.fvacceptor.IFloodlightProxy;
+import net.floodlightcontroller.fvacceptor.IFloodlightProxyProvider;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.jboss.netty.channel.Channel;
@@ -67,8 +67,8 @@ public class OFSwitchImpl implements IOFSwitch {
     protected static Logger log = LoggerFactory.getLogger(OFSwitchImpl.class);
 
     protected ConcurrentMap<Object, Object> attributes;
-    protected IFloodlightProviderService floodlightProvider;
-    protected IFloodlightProxy floodlightProxy;
+    protected IFloodlightProxyProvider floodlightProvider;
+    protected IFloodlightProviderService floodlightProxy;
     protected IThreadPoolService threadPool;
     protected Date connectedSince;
     protected OFFeaturesReply featuresReply;
@@ -370,11 +370,11 @@ public class OFSwitchImpl implements IOFSwitch {
     /**
      * @param floodlightProvider the floodlightProvider to set
      */
-    public void setFloodlightProvider(IFloodlightProviderService floodlightProvider) {
+    public void setFloodlightProvider(IFloodlightProxyProvider floodlightProvider) {
         this.floodlightProvider = floodlightProvider;
     }
     
-    public void setFloodlightProxy(IFloodlightProxy floodlightProxy) {
+    public void setFloodlightProxy(IFloodlightProviderService floodlightProxy) {
         this.floodlightProxy = floodlightProxy;
     }
     
