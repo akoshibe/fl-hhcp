@@ -7,7 +7,7 @@ import net.floodlightcontroller.core.internal.CmdLineSettings;
 import net.floodlightcontroller.core.module.FloodlightModuleException;
 import net.floodlightcontroller.core.module.FloodlightModuleLoader;
 import net.floodlightcontroller.core.module.IFloodlightModuleContext;
-import net.floodlightcontroller.fvacceptor.IFloodlightProxyProvider;
+import net.floodlightcontroller.proxy.IFloodlightProxyProvider;
 import net.floodlightcontroller.restserver.IRestApiService;
 
 /**

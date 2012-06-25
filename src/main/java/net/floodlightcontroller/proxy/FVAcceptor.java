@@ -1,4 +1,4 @@
-package net.floodlightcontroller.fvacceptor;
+package net.floodlightcontroller.proxy;
 
 import java.util.ArrayList;
 import java.util.Collection;

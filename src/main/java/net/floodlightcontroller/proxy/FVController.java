@@ -1,4 +1,4 @@
-package net.floodlightcontroller.fvacceptor;
+package net.floodlightcontroller.proxy;
 
 import java.io.IOException;
 import java.util.Collections;

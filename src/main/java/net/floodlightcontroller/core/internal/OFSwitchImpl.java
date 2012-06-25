@@ -36,9 +36,9 @@ import net.floodlightcontroller.core.IOFMessageListener;
 import net.floodlightcontroller.core.IFloodlightProviderService.Role;
 import net.floodlightcontroller.core.IOFSwitch;
 import net.floodlightcontroller.core.types.MacVlanPair;
+import net.floodlightcontroller.proxy.IFloodlightProxyProvider;
 import net.floodlightcontroller.threadpool.IThreadPoolService;
 import net.floodlightcontroller.util.TimedCache;
-import net.floodlightcontroller.fvacceptor.IFloodlightProxyProvider;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.jboss.netty.channel.Channel;
